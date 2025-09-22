@@ -1,0 +1,7 @@
+{
+  "env": {
+    "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_Y29uY2lzZS1zcXVpZC0yNi5jbGVyay5hY2NvdW50cy5kZXYk",
+    "NEXT_PUBLIC_API_URL": "http://localhost:8000",
+    "NEXT_PUBLIC_WS_URL": "ws://localhost:8000"
+  }
+}
