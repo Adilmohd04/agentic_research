@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: agentic-research
+  labels:
+    name: agentic-research
+    app: agentic-research-copilot
