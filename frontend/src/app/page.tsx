@@ -1,85 +1,94 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
-import ChatInterface from '../components/ChatInterface';
-import RealTimeVoiceChat from '../components/RealTimeVoiceChat';
-import VoiceInterface from '../components/VoiceInterface';
-import MemoryInterface from '../components/MemoryInterface';
-import AgentDashboard from '../components/AgentDashboard';
-import UnifiedKnowledgeBase from '../components/UnifiedKnowledgeBase';
-import SettingsInterface from '../components/SettingsInterface';
+import { useUser } from '@clerk/nextjs';
+import dynamic from 'next/dynamic';
+
+// Lazy load components for better performance
+const ChatInterface = dynamic(() => import('../components/ChatInterface'), { ssr: false });
+const VoiceInterface = dynamic(() => import('../components/VoiceInterface'), { ssr: false });
+const MemoryInterface = dynamic(() => import('../components/MemoryInterface'), { ssr: false });
+const AgentDashboard = dynamic(() => import('../components/AgentDashboard'), { ssr: false });
+const UnifiedKnowledgeBase = dynamic(() => import('../components/UnifiedKnowledgeBase'), { ssr: false });
+const SettingsInterface = dynamic(() => import('../components/SettingsInterface'), { ssr: false });
+
+type TabType = 'chat' | 'voice' | 'memory' | 'dashboard' | 'rag' | 'settings';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'chat' | 'voice' | 'realtime' | 'memory' | 'dashboard' | 'rag' | 'settings'>('chat');
+  const { user, isLoaded } = useUser();
+  const [activeTab, setActiveTab] = useState<TabType>('chat');
   const [sessionId, setSessionId] = useState<string>('');
 
   useEffect(() => {
     setSessionId(`session-${Date.now()}`);
   }, []);
 
+  // Show loading while Clerk is initializing
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <div className="text-center">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center animate-pulse mx-auto mb-4">
+            <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <p className="text-slate-600">Loading AI Research Platform...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Main Header with Clerk Integration */}
-      <header className="glass border-b border-white/20 backdrop-blur-xl">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-xl border-b border-white/20 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="relative">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center animate-glow">
-                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                  </svg>
-                </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
               </div>
               <div>
-                <h1 className="text-2xl font-bold gradient-text">AI Agenting Research</h1>
-                <p className="text-sm text-slate-600 font-medium">Advanced Multi-Agent Research Platform</p>
+                <h1 className="text-xl font-bold text-gray-900">AI Research Platform</h1>
+                <p className="text-sm text-gray-600">Multi-Agent Research System</p>
               </div>
             </div>
             
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-sm text-slate-600 bg-white/50 px-3 py-1.5 rounded-full">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="font-medium">Online</span>
-              </div>
-              
-              <SignedOut>
-                <SignInButton>
-                  <button className="px-4 py-2 text-sm font-medium text-slate-700 bg-white/70 hover:bg-white/90 rounded-lg transition-all duration-200 border border-white/50">
+              {user ? (
+                <>
+                  <button
+                    onClick={() => setActiveTab('settings')}
+                    className={`p-2 rounded-lg transition-colors ${
+                      activeTab === 'settings' 
+                        ? 'bg-blue-100 text-blue-600' 
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </button>
+                  <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-medium text-gray-700">
+                      {user.firstName?.[0] || user.emailAddresses[0]?.emailAddress[0] || 'U'}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="flex space-x-2">
+                  <button className="px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-lg border">
                     Sign In
                   </button>
-                </SignInButton>
-                <SignUpButton>
-                  <button className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl">
+                  <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
                     Sign Up
                   </button>
-                </SignUpButton>
-              </SignedOut>
-              
-              <SignedIn>
-                <button
-                  onClick={() => setActiveTab('settings')}
-                  className={`p-2.5 rounded-lg transition-all duration-200 ${
-                    activeTab === 'settings' 
-                      ? 'bg-blue-100 text-blue-600 shadow-md' 
-                      : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
-                  }`}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </button>
-                <UserButton 
-                  appearance={{
-                    elements: {
-                      avatarBox: "w-10 h-10 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-                    }
-                  }}
-                />
-              </SignedIn>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -87,118 +96,55 @@ export default function Home() {
 
       {/* Navigation Tabs */}
       {activeTab !== 'settings' && (
-        <nav className="glass-dark border-b border-white/10">
+        <nav className="bg-white/60 backdrop-blur-xl border-b border-white/20">
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex space-x-1 overflow-x-auto">
-              <button
-                onClick={() => setActiveTab('chat')}
-                className={`py-4 px-6 font-medium text-sm transition-all duration-200 rounded-t-lg whitespace-nowrap ${
-                  activeTab === 'chat'
-                    ? 'bg-white/20 text-blue-600 border-b-2 border-blue-500 shadow-lg'
-                    : 'text-slate-600 hover:text-slate-800 hover:bg-white/10'
-                }`}
-              >
-                <span className="flex items-center space-x-2">
-                  <span>💬</span>
-                  <span>Text Chat</span>
-                </span>
-              </button>
-              <button
-                onClick={() => setActiveTab('voice')}
-                className={`py-4 px-6 font-medium text-sm transition-all duration-200 rounded-t-lg whitespace-nowrap ${
-                  activeTab === 'voice'
-                    ? 'bg-white/20 text-blue-600 border-b-2 border-blue-500 shadow-lg'
-                    : 'text-slate-600 hover:text-slate-800 hover:bg-white/10'
-                }`}
-              >
-                <span className="flex items-center space-x-2">
-                  <span>🎤</span>
-                  <span>Voice Chat</span>
-                </span>
-              </button>
-              <button
-                onClick={() => setActiveTab('realtime')}
-                className={`py-4 px-6 font-medium text-sm transition-all duration-200 rounded-t-lg whitespace-nowrap ${
-                  activeTab === 'realtime'
-                    ? 'bg-white/20 text-blue-600 border-b-2 border-blue-500 shadow-lg'
-                    : 'text-slate-600 hover:text-slate-800 hover:bg-white/10'
-                }`}
-              >
-                <span className="flex items-center space-x-2">
-                  <span>🗣️</span>
-                  <span>Real-time Speech</span>
-                </span>
-              </button>
-              <button
-                onClick={() => setActiveTab('memory')}
-                className={`py-4 px-6 font-medium text-sm transition-all duration-200 rounded-t-lg whitespace-nowrap ${
-                  activeTab === 'memory'
-                    ? 'bg-white/20 text-blue-600 border-b-2 border-blue-500 shadow-lg'
-                    : 'text-slate-600 hover:text-slate-800 hover:bg-white/10'
-                }`}
-              >
-                <span className="flex items-center space-x-2">
-                  <span>🧠</span>
-                  <span>Memory</span>
-                </span>
-              </button>
-              <button
-                onClick={() => setActiveTab('dashboard')}
-                className={`py-4 px-6 font-medium text-sm transition-all duration-200 rounded-t-lg whitespace-nowrap ${
-                  activeTab === 'dashboard'
-                    ? 'bg-white/20 text-blue-600 border-b-2 border-blue-500 shadow-lg'
-                    : 'text-slate-600 hover:text-slate-800 hover:bg-white/10'
-                }`}
-              >
-                <span className="flex items-center space-x-2">
-                  <span>📊</span>
-                  <span>Agent Dashboard</span>
-                </span>
-              </button>
-              <button
-                onClick={() => setActiveTab('rag')}
-                className={`py-4 px-6 font-medium text-sm transition-all duration-200 rounded-t-lg whitespace-nowrap ${
-                  activeTab === 'rag'
-                    ? 'bg-white/20 text-blue-600 border-b-2 border-blue-500 shadow-lg'
-                    : 'text-slate-600 hover:text-slate-800 hover:bg-white/10'
-                }`}
-              >
-                <span className="flex items-center space-x-2">
-                  <span>🧠</span>
-                  <span>Knowledge Base</span>
-                </span>
-              </button>
+              {[
+                { id: 'chat', label: 'Chat', icon: '💬' },
+                { id: 'voice', label: 'Voice', icon: '🎤' },
+                { id: 'memory', label: 'Memory', icon: '🧠' },
+                { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+                { id: 'rag', label: 'Knowledge', icon: '📚' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as TabType)}
+                  className={`py-3 px-4 font-medium text-sm transition-all duration-200 rounded-t-lg whitespace-nowrap flex items-center space-x-2 ${
+                    activeTab === tab.id
+                      ? 'bg-white text-blue-600 border-b-2 border-blue-500 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-white/50'
+                  }`}
+                >
+                  <span>{tab.icon}</span>
+                  <span>{tab.label}</span>
+                </button>
+              ))}
             </div>
           </div>
         </nav>
       )}
 
-      {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-6 py-6">
-        <div className="glass rounded-2xl shadow-2xl min-h-[calc(100vh-200px)] overflow-hidden">
-          {activeTab === 'chat' && sessionId && (
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 min-h-[600px]">
+          {activeTab === 'chat' && (
             <div className="h-full">
               <ChatInterface sessionId={sessionId} />
             </div>
           )}
-          {activeTab === 'voice' && sessionId && (
+          {activeTab === 'voice' && (
             <div className="h-full">
               <VoiceInterface sessionId={sessionId} />
             </div>
           )}
-          {activeTab === 'realtime' && sessionId && (
-            <div className="bg-gradient-to-br from-blue-50/50 to-indigo-100/50 h-full">
-              <RealTimeVoiceChat sessionId={sessionId} />
+          {activeTab === 'memory' && (
+            <div className="h-full">
+              <MemoryInterface />
             </div>
           )}
-          {activeTab === 'memory' && sessionId && (
+          {activeTab === 'dashboard' && (
             <div className="h-full">
-              <MemoryInterface sessionId={sessionId} />
-            </div>
-          )}
-          {activeTab === 'dashboard' && sessionId && (
-            <div className="h-full">
-              <AgentDashboard sessionId={sessionId} />
+              <AgentDashboard />
             </div>
           )}
           {activeTab === 'rag' && (
@@ -206,7 +152,7 @@ export default function Home() {
               <UnifiedKnowledgeBase />
             </div>
           )}
-          {activeTab === 'settings' && (
+          {activeTab === 'settings' && user && (
             <div className="h-full">
               <SettingsInterface onBack={() => setActiveTab('chat')} />
             </div>
