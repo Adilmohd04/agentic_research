@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
-import dynamic from 'next/dynamic';
+import dynamicImport from 'next/dynamic';
 
 // Lazy load components for better performance
-const ChatInterface = dynamic(() => import('../components/ChatInterface'), { ssr: false });
-const VoiceInterface = dynamic(() => import('../components/VoiceInterface'), { ssr: false });
-const MemoryInterface = dynamic(() => import('../components/MemoryInterface'), { ssr: false });
-const AgentDashboard = dynamic(() => import('../components/AgentDashboard'), { ssr: false });
-const UnifiedKnowledgeBase = dynamic(() => import('../components/UnifiedKnowledgeBase'), { ssr: false });
-const SettingsInterface = dynamic(() => import('../components/SettingsInterface'), { ssr: false });
+const ChatInterface = dynamicImport(() => import('../components/ChatInterface'), { ssr: false });
+const VoiceInterface = dynamicImport(() => import('../components/VoiceInterface'), { ssr: false });
+const MemoryInterface = dynamicImport(() => import('../components/MemoryInterface'), { ssr: false });
+const AgentDashboard = dynamicImport(() => import('../components/AgentDashboard'), { ssr: false });
+const UnifiedKnowledgeBase = dynamicImport(() => import('../components/UnifiedKnowledgeBase'), { ssr: false });
+const SettingsInterface = dynamicImport(() => import('../components/SettingsInterface'), { ssr: false });
 
 type TabType = 'chat' | 'voice' | 'memory' | 'dashboard' | 'rag' | 'settings';
 

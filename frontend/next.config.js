@@ -23,9 +23,6 @@ const nextConfig = {
     outputFileTracingRoot: path.join(__dirname, '../'),
     missingSuspenseWithCSRBailout: false,
   },
-  // Force dynamic rendering
-  generateStaticParams: false,
-  dynamicParams: true,
   // Performance optimizations
   experimental: {
     turbo: {
