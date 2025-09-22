@@ -17,17 +17,15 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Skip static optimization to avoid build errors
+  // Disable static generation completely
   output: 'standalone',
   experimental: {
     outputFileTracingRoot: path.join(__dirname, '../'),
     missingSuspenseWithCSRBailout: false,
   },
-  // Ignore build errors for deployment
-  onDemandEntries: {
-    maxInactiveAge: 25 * 1000,
-    pagesBufferLength: 2,
-  },
+  // Force dynamic rendering
+  generateStaticParams: false,
+  dynamicParams: true,
   // Performance optimizations
   experimental: {
     turbo: {

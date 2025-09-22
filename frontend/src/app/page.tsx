@@ -14,6 +14,10 @@ const SettingsInterface = dynamic(() => import('../components/SettingsInterface'
 
 type TabType = 'chat' | 'voice' | 'memory' | 'dashboard' | 'rag' | 'settings';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default function Home() {
   const { user, isLoaded } = useUser();
   const [activeTab, setActiveTab] = useState<TabType>('chat');

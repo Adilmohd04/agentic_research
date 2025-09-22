@@ -3,6 +3,10 @@ import { Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import Providers from '../components/Providers'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 const inter = Inter({ 
   subsets: ['latin'],
   display: 'swap',
@@ -16,8 +20,8 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'AI Agenting Research - Advanced Multi-Agent Platform',
-  description: 'Cutting-edge AI research platform with multi-agent capabilities, real-time voice interaction, and intelligent memory systems',
+  title: 'AI Research Platform - Multi-Agent System',
+  description: 'Advanced AI research platform with multi-agent capabilities, voice interaction, and intelligent memory systems',
 }
 
 export default function RootLayout({
